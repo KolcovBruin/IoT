@@ -124,7 +124,7 @@ void loop()
   if (digitalRead(PIN)==LOW)
   {
     int Lvl_light=0;
-    if (digitalRead(Photores_PIN)=LOW)
+    if (digitalRead(Photores_PIN)==LOW)
   {
     Lvl_light=High_light;
   }
@@ -140,9 +140,9 @@ void loop()
     //охлаждение с окна
     if (Temp_Str<=25 && angle==0)  //если на улице холднее и окно закрыто, то выключить кондей и открыть окно
     {
-      if (rgbColor==rgb.Color(0,0,255))  //если кондей вкл, то выключить его
+      if (rgbColor!=rgb.Color(Low_light,Low_light,Low_light)||rgbColor!=rgb.Color(High_light,High_light,High_light))  //если кондей вкл, то выключить его
       {
-       rgbColor=rgb.Color(0,0,0);
+       rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
       }
@@ -150,14 +150,14 @@ void loop()
       servo1.write(angle);
     }
     //кондиционер 
-    else if (Temp_Str>25&&rgbColor!=rgb.Color(0,0,255)) //если на улице жарче и кондей выключен, то зыкрыть окно и вкл кондей
+    else if (Temp_Str>25&&(rgbColor!=rgb.Color(0,0,Low_light)||rgbColor!=rgb.Color(0,0,High_light))) //если на улице жарче и кондей выключен, то зыкрыть окно и вкл кондей
     { 
       if (angle!=0)  //если окно открыто, то закрыть
       {
         angle=0;
         servo1.write(angle);
       }
-      rgbColor=rgb.Color(0,0,255);
+      rgbColor=rgb.Color(0,0,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
     }
@@ -169,9 +169,9 @@ void loop()
       angle=0;
       servo1.write(angle);
     }
-    if (rgbColor==rgb.Color(0,0,255))  //если кондей вкл, то выкл
+    if ((rgbColor==rgb.Color(0,0,Low_light)||rgbColor==rgb.Color(High_light,0,0)))  //если кондей вкл, то выкл
     {
-      rgbColor=rgb.Color(0,0,0);
+      rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
     }
@@ -180,16 +180,17 @@ void loop()
   {
     if (Temp_Str>24.3&&angle==0) //на улице теплее, то открыть окно
     {
-     if (rgbColor==rgb.Color(255,0,0))
+     if (rgbColor==rgb.Color(Low_light,0,0)||rgbColor==rgb.Color(High_light,0,0))
      {
-      rgbColor=rgb.Color(0,0,0);
+     
+      rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
      }
       angle=90;
       servo1.write(angle);
     }
-    if (Temp_Str<24.3&&rgbColor!=rgb.Color(255,0,0)) //на улице холоднее, закрыть окно и вкл обогрев
+    if (Temp_Str<24.3&&(rgbColor!=rgb.Color(Low_light,0,0)||rgbColor!=rgb.Color(High_light,0,0))) //на улице холоднее, закрыть окно и вкл обогрев
     {
       if(angle!=0) //открыто окно, закрыть
       {
@@ -197,7 +198,7 @@ void loop()
         servo1.write(angle);
       }
       
-      rgbColor=rgb.Color(255,0,0);
+      rgbColor=rgb.Color(Lvl_light,0,0);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
     }
@@ -209,9 +210,9 @@ void loop()
       angle=0;
       servo1.write(angle);
     }
-    if (rgbColor==rgb.Color(255,0,0))
+    if (rgbColor==rgb.Color(Low_light,0,0)||rgbColor==rgb.Color(High_light,0,0))
     {
-      rgbColor=rgb.Color(0,0,0);
+      rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
     }
