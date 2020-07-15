@@ -13,12 +13,12 @@ char WiFiPassword[] = "9110224141";
 #define Temp_and_Hum_PIN_home 13
 #define PIN                   5
 #define Servo_PIN             15
-#define Low_light             55
-#define High_light            255
+String User;
 float Temp_Home = 0;
 float Temp_Str = 0;
 uint32_t rgbColor;
 int angle = 0;
+void automatic (int Temp_high, int Temp_low);
 DHT dht_st(Temp_and_Hum_PIN_yl, 11);
 DHT dht_home(Temp_and_Hum_PIN_home, 11);
 Servo servo1;
@@ -92,6 +92,17 @@ BLYNK_WRITE(V2)
     angle=0;
    servo1.write(angle);
   }
+  else 
+  {
+    User=param.asStr();
+  }
+
+  //automatic(23.5,23.1);
+  //automatic(25,24.5);
+  //automatic(24.5,24);
+  //automatic(24,23.5);
+  
+  
   
   terminal.flush();
   delay(500);
@@ -120,10 +131,50 @@ void loop()
   if (digitalRead(PIN)==HIGH)
   {
   Blynk.run(); 
+  if (User=="Гриша")
+  {
+  automatic(23.5,23.1);
+  }
+  if (User=="Коля")
+  {
+  automatic(25,24.5);
+  }
+  if (User=="Антон")
+  {
+  automatic(24.5,24);
+  }
+  if (User=="Яша")
+  {
+  automatic(24,23.5);
+  }
   }
   if (digitalRead(PIN)==LOW)
   {
-    int Lvl_light=0;
+  Blynk.run(); 
+  automatic(25,24.5);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void automatic (int Temp_high, int Temp_low)
+{
+  int Low_light=55;
+  int High_light=255;
+  int Lvl_light=0;
     if (digitalRead(Photores_PIN)==LOW)
   {
     Lvl_light=High_light;
@@ -132,25 +183,23 @@ void loop()
   {
      Lvl_light=Low_light;
   }
-  Blynk.run();
-  //охлаждение если жарко
-
-  if (Temp_Home>25) 
+   if (Temp_Home>Temp_high) 
   {
     //охлаждение с окна
-    if (Temp_Str<=25 && angle==0)  //если на улице холднее и окно закрыто, то выключить кондей и открыть окно
+    if (Temp_Str<=Temp_high)  //если на улице холднее и окно закрыто, то выключить кондей и открыть окно
     {
-      if (rgbColor!=rgb.Color(Low_light,Low_light,Low_light)||rgbColor!=rgb.Color(High_light,High_light,High_light))  //если кондей вкл, то выключить его
-      {
-       rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
+      
+      rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
-      }
+      if (angle==0)
+      {
       angle=90;
       servo1.write(angle);
+      }
     }
     //кондиционер 
-    else if (Temp_Str>25&&(rgbColor!=rgb.Color(0,0,Low_light)||rgbColor!=rgb.Color(0,0,High_light))) //если на улице жарче и кондей выключен, то зыкрыть окно и вкл кондей
+    else if (Temp_Str>Temp_high&&(rgbColor!=rgb.Color(0,0,Low_light)||rgbColor!=rgb.Color(0,0,High_light))) //если на улице жарче и кондей выключен, то зыкрыть окно и вкл кондей
     { 
       if (angle!=0)  //если окно открыто, то закрыть
       {
@@ -162,37 +211,37 @@ void loop()
       rgb.show();
     }
   }
-  else if (Temp_Home<24.9&&Temp_Home>24.3)  //если дома нормально, то закрыть окно или выключить кондей
+  else if (Temp_Home<Temp_high&&Temp_Home>Temp_low)  //если дома нормально, то закрыть окно или выключить кондей
   {
     if (angle!=0)  //если окно открыто, то закрыть
     {
       angle=0;
       servo1.write(angle);
     }
-    if ((rgbColor==rgb.Color(0,0,Low_light)||rgbColor==rgb.Color(High_light,0,0)))  //если кондей вкл, то выкл
-    {
+    
      
       rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
-    }
+    
   }
-  if (Temp_Home<24.3) //если дома холоднее нормы
+  if (Temp_Home<Temp_low) //если дома холоднее нормы
   {
-    if (Temp_Str>24.3&&angle==0) //на улице теплее, то открыть окно
+    if (Temp_Str>Temp_low) //на улице теплее, то открыть окно
     {
         
-     if (rgbColor==rgb.Color(Low_light,0,0)||rgbColor==rgb.Color(High_light,0,0))
-     {
+     
       
       rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
-     }
+      if (angle==0)
+      {
       angle=90;
       servo1.write(angle);
+      }
     }
-    if (Temp_Str<24.3&&(rgbColor!=rgb.Color(Low_light,0,0)||rgbColor!=rgb.Color(High_light,0,0))) //на улице холоднее, закрыть окно и вкл обогрев
+    if (Temp_Str<Temp_low&&(rgbColor!=rgb.Color(Low_light,0,0)||rgbColor!=rgb.Color(High_light,0,0))) //на улице холоднее, закрыть окно и вкл обогрев
     {
       if(angle!=0) //открыто окно, закрыть
       {
@@ -205,22 +254,18 @@ void loop()
       rgb.show();
     }
   }
-  else if(Temp_Home>24.5&&Temp_Home<25) //дома норма, закрыть окно и выключить обогрев
+  else if(Temp_Home>Temp_low&&Temp_Home<Temp_high) //дома норма, закрыть окно и выключить обогрев
   {
     if (angle!=0)
     {
       angle=0;
       servo1.write(angle);
     }
-    if (rgbColor==rgb.Color(Low_light,0,0)||rgbColor==rgb.Color(High_light,0,0))
-    {
+    
       
       rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
-    }
-  }
-// сценарий про свет
-  
+    
   }
 }
