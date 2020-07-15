@@ -162,7 +162,7 @@ void loop()
       rgb.show();
     }
   }
-  else if (Temp_Home<24.9)  //если дома нормально, то закрыть окно или выключить кондей
+  else if (Temp_Home<24.9&&Temp_Home>24.3)  //если дома нормально, то закрыть окно или выключить кондей
   {
     if (angle!=0)  //если окно открыто, то закрыть
     {
@@ -171,6 +171,7 @@ void loop()
     }
     if ((rgbColor==rgb.Color(0,0,Low_light)||rgbColor==rgb.Color(High_light,0,0)))  //если кондей вкл, то выкл
     {
+     
       rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
@@ -180,9 +181,10 @@ void loop()
   {
     if (Temp_Str>24.3&&angle==0) //на улице теплее, то открыть окно
     {
+        
      if (rgbColor==rgb.Color(Low_light,0,0)||rgbColor==rgb.Color(High_light,0,0))
      {
-     
+      
       rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
@@ -212,6 +214,7 @@ void loop()
     }
     if (rgbColor==rgb.Color(Low_light,0,0)||rgbColor==rgb.Color(High_light,0,0))
     {
+      
       rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
       rgb.setPixelColor(0, rgbColor);
       rgb.show();
