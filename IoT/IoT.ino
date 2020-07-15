@@ -7,35 +7,43 @@
 char BlynkAuth[] = "K69NTayfvJ7vPBuIvU1WyNFY4rSMxG--";
 char WiFiNetwork[] = "Link";
 char WiFiPassword[] = "9110224141";
-#define RGB              4 
-#define dist_PIN         16
-#define Photores_PIN     12
-#define Temp_and_Hum_PIN 13
-#define PIN              5
-#define Servo_PIN        15
-DHT dht(Temp_and_Hum_PIN, 11);
+#define RGB                   4 
+#define Temp_and_Hum_PIN_yl   12
+#define Photores_PIN          16
+#define Temp_and_Hum_PIN_home 13
+#define PIN                   5
+#define Servo_PIN             15
+DHT dht_yl(Temp_and_Hum_PIN_yl, 11);
+DHT dht_home(Temp_and_Hum_PIN_home, 11);
 Servo servo1;
 Adafruit_NeoPixel rgb = Adafruit_NeoPixel(1, RGB, NEO_GRB + NEO_KHZ800);
 BLYNK_READ(V1)
 {
-  float T=dht.readTemperature();
+  float T=dht_home.readTemperature();
+   Serial.println("Temperature");
+  Serial.println(T);
   Blynk.virtualWrite (V1, T);
 }
 BLYNK_READ(V3) 
 {
-  float H=dht.readHumidity();
+  float H=dht_home.readHumidity();
+   Serial.println("Hum");
+  Serial.println(H);
   Blynk.virtualWrite (V3, H);
 }
-BLYNK_READ(V4) 
+BLYNK_READ(V4)
 {
-  if (digitalRead(dist_PIN)==1)
-  {
-  Blynk.virtualWrite (V4, "Нет объекта");
-  }
-  if (digitalRead(dist_PIN)==0)
-  {
-  Blynk.virtualWrite (V4, "Есть объект");
-  }
+  float T_1=dht_yl.readTemperature();
+   Serial.println("Temperature");
+  Serial.println(T_1);
+  Blynk.virtualWrite (V4, T_1);
+}
+BLYNK_READ(V6) 
+{
+  float H_1=dht_yl.readHumidity();
+  Serial.println("Hum");
+  Serial.println(H_1);
+  Blynk.virtualWrite (V6, H_1);
 }
 BLYNK_READ(V5)
 {
@@ -76,6 +84,12 @@ BLYNK_WRITE(V2)
     rgb.setPixelColor(0, rgbColor);
     rgb.show();
   } 
+  else if (String("Открыть окно") == param.asStr()) {
+   servo1.write(180);
+  } 
+  else if (String("Закрыть окно") == param.asStr()) {
+   servo1.write(0);
+  }
   
   terminal.flush();
   delay(500);
@@ -86,33 +100,27 @@ void setup()
   servo1.attach(Servo_PIN, 900, 2100);
   Serial.begin(9600); 
   rgb.begin(); 
-  dht.begin();
+  dht_yl.begin();
+  dht_home.begin();
   
-  pinMode(Temp_and_Hum_PIN, INPUT);
+  
+  pinMode(Temp_and_Hum_PIN_home, INPUT);
+  pinMode(Temp_and_Hum_PIN_yl, INPUT);
   pinMode(Photores_PIN, INPUT);
   pinMode(PIN,  INPUT);
-  pinMode(dist_PIN, INPUT);
+ // pinMode(dist_PIN, INPUT);
   Blynk.begin(BlynkAuth, WiFiNetwork, WiFiPassword);
 }
 void loop()
 {
-  Serial.println(digitalRead(5));
-  if (digitalRead(5)==HIGH)
+  Serial.println(digitalRead(PIN));
+  if (digitalRead(PIN)==HIGH)
   {
   Blynk.run(); 
   }
-  if  (digitalRead(5)==LOW)
+  if (digitalRead(PIN)==LOW)
   {
   Blynk.run();
-  Serial.print("objekt:  ");
-  Serial.println(analogRead(16));
-  Serial.print("light:  ");
-  Serial.println(analogRead(12));
-  servo1.write(90);    
-  delay(1000);         
-  servo1.write(180);   
-  delay(1000);         
-  servo1.write(0);     
-  delay(1000);
+  //if (
   }
 }
