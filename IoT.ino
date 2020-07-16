@@ -95,6 +95,7 @@ BLYNK_WRITE(V2)
   else 
   {
     User=param.asStr();
+    Serial.println(User);
   }
 
   //automatic(23.5,23.1);
@@ -137,21 +138,22 @@ void loop()
   }
   if (User=="Коля")
   {
-  automatic(25,24.5);
+  automatic(25.0,24.5);
   }
   if (User=="Антон")
   {
-  automatic(24.5,24);
+  automatic(24.5,24.0);
   }
   if (User=="Яша")
   {
-  automatic(24,23.5);
+  automatic(24.0,23.5);
   }
   }
   if (digitalRead(PIN)==LOW)
   {
+    User="";
   Blynk.run(); 
-  automatic(25,24.5);
+  automatic(25.0,24.5);
   }
 }
 
@@ -170,7 +172,7 @@ void loop()
 
 
 
-void automatic (int Temp_high, int Temp_low)
+void automatic (double Temp_high, double Temp_low)
 {
   int Low_light=55;
   int High_light=255;
@@ -211,7 +213,7 @@ void automatic (int Temp_high, int Temp_low)
       rgb.show();
     }
   }
-  else if (Temp_Home<Temp_high&&Temp_Home>Temp_low)  //если дома нормально, то закрыть окно или выключить кондей
+  if (Temp_Home<Temp_high&&Temp_Home>Temp_low)  //если дома нормально, то закрыть окно или выключить кондей
   {
     if (angle!=0)  //если окно открыто, то закрыть
     {
@@ -254,18 +256,18 @@ void automatic (int Temp_high, int Temp_low)
       rgb.show();
     }
   }
-  else if(Temp_Home>Temp_low&&Temp_Home<Temp_high) //дома норма, закрыть окно и выключить обогрев
-  {
-    if (angle!=0)
-    {
-      angle=0;
-      servo1.write(angle);
-    }
-    
-      
-      rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
-      rgb.setPixelColor(0, rgbColor);
-      rgb.show();
-    
-  }
+//  else if(Temp_Home>Temp_low&&Temp_Home<Temp_high) //дома норма, закрыть окно и выключить обогрев
+//  {
+//    if (angle!=0)
+//    {
+//      angle=0;
+//      servo1.write(angle);
+//    }
+//    
+//      
+//      rgbColor=rgb.Color(Lvl_light,Lvl_light,Lvl_light);
+//      rgb.setPixelColor(0, rgbColor);
+//      rgb.show();
+//    
+//  }
 }
